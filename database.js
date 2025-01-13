@@ -1,0 +1,101 @@
+const sqlite3 = require('sqlite3').verbose();
+
+const db = new sqlite3.Database(':memory:');
+
+function initializeDatabase() {
+  return new Promise((resolve, reject) => {
+    db.serialize(() => {
+      db.run(`
+        CREATE TABLE members (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT NOT NULL,
+          age INTEGER NOT NULL,
+          gender TEXT NOT NULL,
+          address TEXT NOT NULL,
+          phone_number TEXT NOT NULL UNIQUE,
+          email_address TEXT NOT NULL UNIQUE,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+      `, (err) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      });
+    });
+  });
+}
+
+function addMember(member) {
+  return new Promise((resolve, reject) => {
+    const { name, age, gender, address, phone_number, email_address } = member;
+    
+    db.run(
+      `INSERT INTO members 
+      (name, age, gender, address, phone_number, email_address) 
+      VALUES (?, ?, ?, ?, ?, ?)`,
+      [name, age, gender, address, phone_number, email_address],
+      function(err) {
+        if (err) {
+          reject(err);
+        } else {
+          resolve({ id: this.lastID });
+        }
+      }
+    );
+  });
+}
+
+function getAllMembers() {
+  return new Promise((resolve, reject) => {
+    db.all(`SELECT * FROM members`, [], (err, rows) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(rows);
+      }
+    });
+  });
+}
+
+function updateMember(id, member) {
+  return new Promise((resolve, reject) => {
+    const { name, age, gender, address, phone_number, email_address } = member;
+    
+    db.run(
+      `UPDATE members 
+      SET name = ?, age = ?, gender = ?, address = ?, 
+      phone_number = ?, email_address = ? 
+      WHERE id = ?`,
+      [name, age, gender, address, phone_number, email_address, id],
+      (err) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      }
+    );
+  });
+}
+
+function deleteMember(id) {
+  return new Promise((resolve, reject) => {
+    db.run(`DELETE FROM members WHERE id = ?`, [id], (err) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
+  });
+}
+
+module.exports = {
+  initializeDatabase,
+  addMember,
+  getAllMembers,
+  updateMember,
+  deleteMember
+};
