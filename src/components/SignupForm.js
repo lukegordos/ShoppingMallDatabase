@@ -22,7 +22,8 @@ function SignupForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('/members', formData);
+      const apiUrl = process.env.REACT_APP_API_URL || '';
+      const response = await axios.post(`${apiUrl}/members`, formData);
       alert('Member added successfully! ID: ' + response.data.id);
       // Reset form after successful submission
       setFormData({

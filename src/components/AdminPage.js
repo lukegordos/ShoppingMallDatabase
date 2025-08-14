@@ -11,7 +11,8 @@ function AdminPage() {
 
   const fetchMembers = async () => {
     try {
-      const response = await axios.get('/members');
+      const apiUrl = process.env.REACT_APP_API_URL || '';
+      const response = await axios.get(`${apiUrl}/members`);
       setMembers(response.data);
     } catch (error) {
       console.error('Error fetching members:', error);
@@ -52,7 +53,8 @@ function AdminPage() {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this member?')) {
       try {
-        await axios.delete(`/members/${id}`);
+        const apiUrl = process.env.REACT_APP_API_URL || '';
+        await axios.delete(`${apiUrl}/members/${id}`);
         fetchMembers();
         alert('Member deleted successfully');
       } catch (error) {
@@ -79,7 +81,8 @@ function AdminPage() {
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`/members/${editingMember.id}`, editingMember);
+      const apiUrl = process.env.REACT_APP_API_URL || '';
+      await axios.put(`${apiUrl}/members/${editingMember.id}`, editingMember);
       fetchMembers();
       setEditingMember(null);
       alert('Member updated successfully');
